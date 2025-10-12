@@ -11,6 +11,10 @@ console.log(__dirname);
 const admin = require('firebase-admin');
 
 const app = express();
+app.use(cors({
+  origin: ["http://localhost:5500", "https://mood-movie.onrender.com"], 
+  methods: ["GET", "POST"],
+}));
 const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, "../public")));
 app.get("*", (req, res) => {
