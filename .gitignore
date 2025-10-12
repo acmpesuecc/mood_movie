@@ -1,0 +1,8 @@
+public/firebaseconfig.js
+node_modules/
+.env
+.DS_Store
+Thumbs.db
+*.log
+quick-start.js
+.vscode/
