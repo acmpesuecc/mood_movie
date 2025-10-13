@@ -1,4 +1,3 @@
-
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
@@ -11,15 +10,15 @@ console.log(__dirname);
 const admin = require('firebase-admin');
 
 const app = express();
-app.use(cors({
-  origin: ["http://localhost:5500", "https://mood-movie-d0jh.onrender.com"], 
-  methods: ["GET", "POST"],
-}));
 const PORT = process.env.PORT || 3000;
-app.use(express.static(path.join(__dirname, "../public")));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
-});
+app.use(cors({
+  origin: ["http://localhost:5500", "https://mood-movie-d0jh.onrender.com","https://mood-movie.onrender.com/"], 
+  methods: ["GET", "POST"],
+  credentials: true
+}));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../public')));
+
 
 // Initialize Firebase Admin
 const serviceAccount = {
@@ -39,10 +38,6 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '../public')));
 
 // Authentication middleware
 const authenticateUser = async (req, res, next) => {
@@ -106,6 +101,9 @@ app.get('/api/firebase-config', (req, res) => {
 // Serve the main HTML file
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running' });
 });
 
 // Analyze mood endpoint
@@ -267,6 +265,9 @@ app.post('/api/surprise-me', authenticateUser, async (req, res) => {
     console.error('Surprise me error:', error);
     res.status(500).json({ error: 'Failed to get surprise recommendation' });
   }
+});
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 // Error handling middleware
