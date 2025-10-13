@@ -12,8 +12,14 @@ const admin = require('firebase-admin');
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(cors({
-  origin: ["http://localhost:5500", "https://mood-movie-d0jh.onrender.com","https://mood-movie.onrender.com/"], 
-  methods: ["GET", "POST"],
+  origin: [
+    "http://localhost:5500", 
+    "http://127.0.0.1:5500",
+    "https://mood-movie-d0jh.onrender.com", 
+    "https://mood-movie.onrender.com"
+  ], 
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 app.use(bodyParser.json());

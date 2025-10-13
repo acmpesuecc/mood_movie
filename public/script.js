@@ -62,13 +62,27 @@ async function apiCall(endpoint, options = {}) {
       }
     });
 
+    // Check if response is OK
     if (!response.ok) {
-      throw new Error(`API call failed: ${response.status}`);
+      const errorText = await response.text();
+      console.error('API error details:', {
+        status: response.status,
+        statusText: response.statusText,
+        endpoint: endpoint,
+        error: errorText
+      });
+      throw new Error(`API call failed: ${response.status} - ${response.statusText}`);
     }
 
     return await response.json();
   } catch (error) {
     console.error('API call error:', error);
+    
+    // More specific error messages
+    if (error.message.includes('Failed to fetch')) {
+      throw new Error('Network error: Cannot connect to server. Please check your internet connection and try again.');
+    }
+    
     throw error;
   }
 }
@@ -217,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Google Sign-Up
   document.getElementById('googleSignupBtn').addEventListener('click', async () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
+    const provider = new GoogleAuthProvider();
     try {
       await auth.signInWithPopup(provider);
     } catch (error) {
