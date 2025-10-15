@@ -22,11 +22,8 @@ const auth = getAuth(app);
 // Global chart instance
 let moodChart = null;
 
-// API Base URL
-const API_BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:3000/api"
-    : "https://mood-movie.onrender.com/api"; 
+// Dynamic API URL that works everywhere
+const API_BASE_URL = "/api";                           
 
 // Initialize Theme
 function initializeTheme() {
@@ -825,3 +822,4 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
