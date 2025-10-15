@@ -1,8 +1,8 @@
 # Contributing to MoodMatcher
 
-Welcome to Hacknight 7.0!
-Thank you for your interest in contributing to MoodMatcher :D
-This guide will help you contribute confidently, especially if you're new to open source.
+- Welcome to Hacknight 7.0!
+- Thank you for your interest in contributing to MoodMatcher :D
+- This guide will help you contribute confidently, especially if you're new to open source.
 
 ---
 
@@ -32,6 +32,30 @@ Please follow these to ensure smooth collaboration and maintain quality.
 - Don’t spam with duplicate or irrelevant issues.
 
 ---
+## Project Structure
+
+```bash
+mood_movie/
+├── node_modules/                 
+│
+├── public/                       
+│   ├── firebaseconfig.js         
+│   ├── index.html                
+│   ├── script.js                 
+│   └── styles.css                
+│
+├── server/                       
+│   └── server.js                 
+│
+├── .env                          
+├── .env.example                  
+├── .gitignore                    
+├── CONTRIBUTING.md               
+├── package-lock.json             
+├── package.json                  
+└──README.md                     
+```           
+
 
 ## Steps to make a PR
 
@@ -133,5 +157,5 @@ Make sure your updates:
 
 ## Credits
 
-Made with ❤️ by **Sarah Kazi**
-Open to feedback, contributions, and suggestions! 
+- Made with ❤️ by **Sarah Kazi**
+- Open to feedback, contributions, and suggestions! 
