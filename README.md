@@ -123,3 +123,6 @@ The backend server provides the following RESTful API endpoints, which are prote
 | `GET`  | `/api/history`              | Retrieves a user's movie recommendation history.  |
 | `GET`  | `/api/health`               | Health check endpoint to confirm server is running. |
 
+## License
+This project is licensed under the [MIT License](./LICENSE).
+
