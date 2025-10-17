@@ -448,7 +448,7 @@ textarea:focus + .input-decoration {
     align-items: flex-start;
 }
 
-.poster-placeholder {
+/* .poster-placeholder {
     width: 120px;
     height: 180px;
     background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
@@ -456,7 +456,18 @@ textarea:focus + .input-decoration {
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
+} */
+
+.poster-image {
+    width: 120px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    background: #eee;
+    display: block;
 }
+
 
 .film-strip {
     position: absolute;

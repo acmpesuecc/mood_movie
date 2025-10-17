@@ -216,20 +216,25 @@ document.addEventListener('DOMContentLoaded', () => {
   
   document.getElementById('profileBtn').addEventListener('click', showProfile);
   
-  // Auth for both Google-Sign-In and Google-Sign-Up
-  const handleGoogleAuth = async () => {
-        const provider = new GoogleAuthProvider();
-        try {
-            await signInWithPopup(auth, provider);
-        } catch (error) {
-            alert("Error occured: "+error.message);
-        }
-  };
   // Google Sign-In
-  document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleAuth);
+  document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      alert(error.message);
+    }
+  });
 
   // Google Sign-Up
-  document.getElementById('googleSignupBtn').addEventListener('click', handleGoogleAuth);
+  document.getElementById('googleSignupBtn').addEventListener('click', async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await auth.signInWithPopup(provider);
+    } catch (error) {
+      alert(error.message);
+    }
+  });
   
   // Logout
   document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -333,6 +338,8 @@ async function displayResults(moods, movieData) {
   document.getElementById('movieTitle').textContent = `${movieData.title} (${movieData.year})`;
   document.getElementById('movieDesc').textContent = movieData.description;
   document.getElementById('movieWhy').textContent = movieData.reason;
+  console.log(movieData.poster);
+  document.getElementById("poster-image").src = movieData.poster;
   
   // Show result section
   document.getElementById('result').classList.remove('hidden');
