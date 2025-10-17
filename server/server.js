@@ -1,3 +1,4 @@
+const https = require('https')
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
@@ -39,7 +40,6 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
-
 // Authentication middleware
 const authenticateUser = async (req, res, next) => {
   try {
@@ -57,6 +57,55 @@ const authenticateUser = async (req, res, next) => {
     res.status(401).json({ error: 'Invalid token' });
   }
 };
+
+// TMDB
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+
+// async function getTMDBPoster(title, year) {
+//   const baseUrl = 'https://api.themoviedb.org/3/search/movie';
+//   const url = `${baseUrl}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}${year ? `&year=${year}` : ''}`;
+//   const response = await fetch(url);
+//   const data = await response.json();
+//   if (data.results && data.results.length > 0) {
+//     const movie = data.results[0];
+//     // poster_path is just the filename, need to prepend TMDB's image base
+//     const posterUrl = movie.poster_path
+//       ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+//       : null;
+//     return posterUrl;
+//   }
+//   return null;
+// }
+
+
+// Create an https agent that disables SSL verification (for testing only)
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
+});
+
+async function getTMDBPoster(title, year) {
+  const baseUrl = 'https://api.themoviedb.org/3/search/movie';
+  const url = `${baseUrl}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}${year ? `&year=${year}` : ''}`;
+  
+  const response = await fetch(url, { agent: httpsAgent });
+  
+  // Check for HTTP status
+  if (!response.ok) {
+    const text = await response.text();  // Read text for debugging
+    console.error(`TMDB API error (${response.status}): ${text}`);
+    return null;  // or throw error
+  }
+  
+  const data = await response.json();
+  if (data.results && data.results.length > 0) {
+    const movie = data.results[0];
+    return movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null;
+  }
+  return null;
+}
+
+
+
 
 // Groq chat completion function
 async function getGroqChatCompletion(messages) {
@@ -170,7 +219,9 @@ app.post('/api/recommend-movie', authenticateUser, async (req, res) => {
       if (line.startsWith('Description:')) movieData.description = line.replace('Description:', '').trim();
       if (line.startsWith('YouTube:')) movieData.youtubeId = line.replace('YouTube:', '').trim();
     });
-
+    const poster = await getTMDBPoster(movieData.title, movieData.year);
+    movieData.poster = poster;
+    console.log(poster);
     res.json({ movieData });
   } catch (error) {
     console.error('Movie recommendation error:', error);

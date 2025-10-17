@@ -333,6 +333,11 @@ async function displayResults(moods, movieData) {
   document.getElementById('movieTitle').textContent = `${movieData.title} (${movieData.year})`;
   document.getElementById('movieDesc').textContent = movieData.description;
   document.getElementById('movieWhy').textContent = movieData.reason;
+  if (movieData.poster != "" || movieData.poster != null){
+    const poster_ele = document.getElementById("poster-image")
+    poster_ele.src = movieData.poster;
+    poster_ele.classList.remove('hidden');
+  }
   
   // Show result section
   document.getElementById('result').classList.remove('hidden');
