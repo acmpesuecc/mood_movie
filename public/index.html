@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="data:,">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 </head>
 <body>
     <header class="header">
@@ -19,19 +20,26 @@
         </button>
     </header>
     
+    <!-- Animated Background -->
     <div class="bg-animation">
         <div class="bubble bubble-1"></div>
         <div class="bubble bubble-2"></div>
     </div>
 
+    <!-- Main Container -->
     <div class="container">
+        <!-- Error Message Display -->
         <div id="errorMessage" class="error-message"></div>
         
+        
         <div class="logo-block">
-            <h1><span class="logo-text">MoodMatcher</span></h1>
+            <h1>
+                <span class="logo-text">MoodMatcher</span>
+            </h1>
             <p class="subtitle">Tell me how you feel, I'll find your perfect movie match!</p>
         </div>
         
+        <!-- Mood Input Section -->
         <div class="mood-input">
             <div class="input-container">
                 <textarea id="userText" placeholder="I feel like..."></textarea>
@@ -53,44 +61,51 @@
             </div>
         </div>
         
+        <!-- Results Section -->
         <div class="result hidden" id="result">
+            <!-- Top Row: Mood + Movie Side-by-Side -->
             <div class="compact-row">
+                <!-- Mood Card -->
                 <div class="wide-card mood-card">
                     <div class="card-header">
                         <h2>Your Mood Analysis</h2>
+                        <div class="card-icon"></div>
                     </div>
                     <div id="moodBubbles" class="mood-bubbles"></div>
+                    <p id="moodDescription" class="mood-desc"></p>
                 </div>
                 
+                <!-- Movie Recommendation -->
                 <div class="wide-card movie-card">
                     <div class="card-header">
                         <h2>We Recommend</h2>
+                        <div class="card-icon"></div>
                     </div>
                     <div class="movie-content">
-                        <img id="poster-image" alt="Movie Poster" class="hidden">
+                        <img id="poster-image" alt="Movie Poster" style="width: 300px; height: auto; display: block; margin-bottom: 1rem;" class="hidden">
+
+                        <!-- <div class="poster-placeholder">
+                            <div class="film-strip"></div>
+                            <div class="film-roll"></div>
+                        </div> -->
                         <div class="movie-info">
                             <h3 id="movieTitle">Movie Title</h3>
+                            <div class="rating">
+                                <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>☆</span>
+                            </div>
                             <p id="movieDesc" class="movie-desc">Description will appear here...</p>
                             <p id="movieWhy" class="movie-reason">Why we chose it...</p>
                         </div>
-                        <div class="movie-actions">
-                            <button id="addToWatchlistBtn" class="action-btn">
-                                <span class="btn-icon">🔖</span>
-                                <span class="btn-text">Add to Watchlist</span>
-                            </button>
-                            <button id="markAsWatchedBtn" class="action-btn">
-                                <span class="btn-icon">✔️</span>
-                                <span class="btn-text">Mark as Watched</span>
-                            </button>
-                        </div>
-                        </div>
+                    </div>
                 </div>
             </div>
             
+            <!-- Middle Row: Trailer -->
             <div class="compact-row">
                 <div class="full-width-card trailer-container hidden" id="trailerContainer">
                     <div class="card-header">
                         <h2>Watch The Trailer</h2>
+                        <div class="card-icon"></div>
                     </div>
                     <div class="video-wrapper">
                         <iframe id="ytTrailer" frameborder="0" allowfullscreen></iframe>
@@ -98,10 +113,13 @@
                 </div>
             </div>
             
+            <!-- Bottom Row: History + Chart -->
             <div class="compact-row">
+                <!-- History Card -->
                 <div class="wide-card history-container">
                     <div class="card-header">
                         <h2>Mood History</h2>
+                        <div class="card-icon"></div>
                     </div>
                     <div class="history-table-container">
                         <table class="history-table">
@@ -113,14 +131,18 @@
                                     <th>Match Score</th>
                                 </tr>
                             </thead>
-                            <tbody id="historyList"></tbody>
+                            <tbody id="historyList">
+                                <!-- History items will be inserted here -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
                 
+                <!-- Trends Card -->
                 <div class="wide-card chart-container">
                     <div class="card-header">
                         <h2>Mood Trends</h2>
+                        <div class="card-icon"></div>
                     </div>
                     <div class="chart-wrapper">
                         <canvas id="moodChart"></canvas>
@@ -129,9 +151,15 @@
             </div>
         </div>
         
+        <!-- Confetti Animation -->
         <div class="confetti-container" id="confetti"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script type="module" src="./script.js"></script>
+
+    <!-- Auth Modal -->
     <div id="authModal" class="auth-modal">
         <div class="auth-container">
             <button class="close-btn" id="closeAuthModal">×</button>
@@ -141,32 +169,50 @@
                 <button class="auth-tab" data-tab="signup">Sign Up</button>
             </div>
             
+            <!-- Login Form -->
             <form id="loginForm" class="auth-form">
                 <input type="email" id="loginEmail" placeholder="Your email" required>
                 <input type="password" id="loginPassword" placeholder="Your password" required>
-                <button type="submit" id="loginBtn" class="main-btn ripple"><span>Login</span></button>
+                <button type="submit" id="loginBtn" class="main-btn ripple">
+                    
+                    <span>Login</span>
+                </button>
+                
                 <div class="divider">or continue with</div>
+                
                 <div class="social-login">
-                    <button type="button" id="googleLoginBtn" class="social-btn google-btn"><span class="social-icon">G</span><span>Google</span></button>
+                    <button type="button" id="googleLoginBtn" class="social-btn google-btn">
+                        <span class="social-icon">G</span>
+                        <span>Google</span>
+                    </button>
                 </div>
+                
                 <p class="auth-footer">New to MoodMatcher? <a href="#" id="showSignup">Create an account</a></p>
             </form>
             
+            <!-- Signup Form -->
             <form id="signupForm" class="auth-form hidden">
+                <input type="text" id="signupName" placeholder="Your name" required>
                 <input type="email" id="signupEmail" placeholder="Your email" required>
                 <input type="password" id="signupPassword" placeholder="Create password" required>
                 <input type="password" id="signupConfirmPassword" placeholder="Confirm password" required>
-                <button type="submit" id="signupBtn" class="main-btn ripple"><span>Sign Up</span></button>
+                <button type="submit" id="signupBtn" class="main-btn ripple">
+                    
+                    <span>Sign Up</span>
+                </button>
+                
                 <div class="divider">or sign up with</div>
+                
                 <div class="social-login">
-                    <button type="button" id="googleSignupBtn" class="social-btn google-btn"><span class="social-icon">G</span><span>Google</span></button>
+                    <button type="button" id="googleSignupBtn" class="social-btn google-btn">
+                        <span class="social-icon">G</span>
+                        <span>Google</span>
+                    </button>
                 </div>
+                
                 <p class="auth-footer">Already have an account? <a href="#" id="showLogin">Login here</a></p>
             </form>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="./script.js"></script>
 </body>
 </html>

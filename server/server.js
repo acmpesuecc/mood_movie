@@ -55,24 +55,7 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-// TMDB & Groq Helper Functions (assuming these are correct and unchanged)
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
-
-async function getTMDBPoster(title, year) {
-    const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}${year ? `&year=${year}` : ''}`;
-    const response = await fetch(url, { agent: httpsAgent });
-    if (!response.ok) {
-        console.error(`TMDB API error (${response.status})`);
-        return null;
-    }
-    const data = await response.json();
-    if (data.results && data.results.length > 0) {
-        const movie = data.results[0];
-        return movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null;
-    }
-    return null;
-}
 
 async function getGroqChatCompletion(messages) {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -95,6 +78,20 @@ async function getGroqChatCompletion(messages) {
 
 
 // --- API ENDPOINTS ---
+app.get('/api/firebase-config', (req, res) => {
+  // Only provide public Firebase config parameters
+  const clientFirebaseConfig = {
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID
+  };
+  
+  res.json(clientFirebaseConfig);
+});
 
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
 
@@ -133,7 +130,7 @@ app.post('/api/recommend-movie', authenticateUser, async (req, res) => {
             if (line.startsWith('Reason:')) movieData.reason = line.replace('Reason:', '').trim();
             if (line.startsWith('Description:')) movieData.description = line.replace('Description:', '').trim();
         });
-        movieData.poster = await getTMDBPoster(movieData.title, movieData.year);
+        movieData.poster = null;
         res.json({ movieData });
     } catch (error) {
         console.error('Movie recommendation error:', error);
@@ -143,7 +140,59 @@ app.post('/api/recommend-movie', authenticateUser, async (req, res) => {
 
 // Get YouTube trailer endpoint
 app.get('/api/youtube-trailer', authenticateUser, async (req, res) => {
-    // ... (This endpoint can remain as is)
+    try {
+        const { movieTitle } = req.query;
+        
+        if (!movieTitle) {
+            return res.status(400).json({ error: 'Movie title is required' });
+        }
+
+        const query = `${movieTitle} movie official trailer`;
+        const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&key=${process.env.YOUTUBE_API_KEY}&maxResults=1`
+        );
+        
+        const data = await response.json();
+        const videoId = data.items?.[0]?.id?.videoId || null;
+
+        res.json({ videoId });
+    } catch (error) {
+        console.error('YouTube API error:', error);
+        res.status(500).json({ error: 'Failed to get trailer' });
+    }
+});
+
+// Surprise me endpoint
+app.post('/api/surprise-me', authenticateUser, async (req, res) => {
+  try {
+    const prompt = `Recommend a completely random, unexpected movie that could be from any genre, era, or country. 
+    Make it something surprising and delightful. 
+    Format your response EXACTLY like this:
+    Title: [Movie Title]
+    Year: [Release Year]
+    Reason: [1-2 sentences why this is a delightful surprise]
+    Description: [Brief 1-2 sentence movie description]
+    YouTube: [Optional YouTube trailer ID]`;
+
+    const response = await getGroqChatCompletion([{ role: "user", content: prompt }]);
+    
+    // Parse the response
+    const lines = response.split('\n');
+    const movieData = {};
+    
+    lines.forEach(line => {
+      if (line.startsWith('Title:')) movieData.title = line.replace('Title:', '').trim();
+      if (line.startsWith('Year:')) movieData.year = line.replace('Year:', '').trim();
+      if (line.startsWith('Reason:')) movieData.reason = line.replace('Reason:', '').trim();
+      if (line.startsWith('Description:')) movieData.description = line.replace('Description:', '').trim();
+      if (line.startsWith('YouTube:')) movieData.youtubeId = line.replace('YouTube:', '').trim();
+    });
+
+    res.json({ movieData });
+  } catch (error) {
+    console.error('Surprise me error:', error);
+    res.status(500).json({ error: 'Failed to get surprise recommendation' });
+  }
 });
 
 // --- HISTORY & WATCHLIST ENDPOINTS ---

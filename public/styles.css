@@ -14,7 +14,7 @@
     --shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.dark-mode {
+body.dark-mode {
     /* Dark mode colors */
     --primary: #a29bfe;
     --primary-light: #6c5ce7;
